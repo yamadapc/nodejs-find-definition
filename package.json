@@ -1,0 +1,53 @@
+{
+  "name": "find-definition",
+  "version": "1.0.0",
+  "description": "Finds the definition of a token in a Node.JS module.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha --require blanket -R mocha-spec-cov-alt",
+    "watch": "find . | grep .js$ | entr npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yamadapc/nodejs-find-definition.git"
+  },
+  "keywords": [
+    "development",
+    "definition",
+    "ast",
+    "IDE"
+  ],
+  "author": "Pedro Tacla Yamada",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yamadapc/nodejs-find-definition/issues"
+  },
+  "homepage": "https://github.com/yamadapc/nodejs-find-definition",
+  "devDependencies": {
+    "blanket": "^1.1.6",
+    "mocha": "^2.1.0",
+    "mocha-spec-cov-alt": "^0.2.3",
+    "should": "^4.6.1"
+  },
+  "dependencies": {
+    "esprima": "^1.2.3",
+    "estraverse": "^1.9.1",
+    "lodash": "^2.4.1"
+  },
+  "config": {
+    "blanket": {
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ],
+      "pattern": [
+        "lib"
+      ],
+      "spec-cov": {
+        "threshold": 80,
+        "localThreshold": 80,
+        "lcovOutput": "lcov"
+      }
+    }
+  }
+}
