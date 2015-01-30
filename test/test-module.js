@@ -1,5 +1,5 @@
 'use strict';
-
+function wrapper() {
 function doSomething() {
 }
 
@@ -20,3 +20,15 @@ exports.really = {};
 exports.really.fucking = { nested: {} };
 
 exports.really.fucking.nested.here = 'hehe';
+
+var fs = require('fs');
+
+var something = require('./something/there');
+
+
+
+
+var readFile = fs.readFile();
+
+var WSProt = fs.WriteStream.prototype;
+}

@@ -37,6 +37,48 @@ describe('find-definition', function() {
 
   });
 
+  describe('.getModuleAst(fp, nodeModulesFp, moduleName)', function() {
+    it('returns the AST for a given local module', function(done) {
+      var _this = this;
+
+      findDefinition.getModuleAst(__dirname, (__dirname + '../core'), '../node_modules', './test-module', function(err, ast) {
+        should.not.exist(err);
+        should.exist(ast);
+        ast.should.have.properties(['type', 'body', 'loc', 'path']);
+        ast.path.should.equal(_this.testModuleFp);
+        done();
+      should.not.exist(err);
+      });
+    });
+  });
+
+  describe('.findDefinitionRecursive(ast, name, cb)', function() {
+    it('recursivelly searches modules for the definition of a name', function(done) {
+      findDefinition.findDefinitionRecursive(
+        __dirname,
+        '../node_modules',
+        __dirname + '/../core',
+        this.testAst,
+        'fs.WriteStream',
+        function(err, def) {
+          if(err) return done(err);
+          def.loc.start.line.should.equal(1732);
+          done();
+        }
+      );
+    });
+  });
+
+  describe('.findModuleNameInAst(ast, name)', function() {
+    it('finds the module from which a name comes from', function() {
+      var name = findDefinition.findModuleNameInAst(this.testAst, 'fs');
+      should.exist(name);
+      name.should.equal('fs');
+      name = findDefinition.findModuleNameInAst(this.testAst, 'something');
+      name.should.equal('./something/there');
+    });
+  });
+
   describe('.findByLoc(ast, line, col)', function() {
     it('returns the node at the location provided', function() {
       var testModule = fs.readFileSync(path.join(__dirname, 'test-module.js'))
