@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Finds the definition of a token in a Node.JS module.",
   "main": "lib/index.js",
+  "bin": "bin/nodejs-find-definition",
   "scripts": {
     "test": "mocha --require blanket -R mocha-spec-cov-alt",
     "fetch_core": "git clone --depth 1 https://github.com/joyent/node && cp -r node/lib core",
@@ -31,6 +32,7 @@
     "should": "^4.6.1"
   },
   "dependencies": {
+    "commander": "^2.6.0",
     "esprima": "^1.2.3",
     "estraverse": "^1.9.1",
     "lodash": "^3.0.0",

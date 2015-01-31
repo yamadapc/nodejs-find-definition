@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+var program = require('commander');
+var findDefinition = require('..');
+
+program
+  .usage('[fnlcr]')
+  .option('-f, --file <path>', 'Input file to analyse')
+  .option('-n, --node_modules <nmpath>', 'Node modules path')
+  .option('-r, --core_modules <cmpath', 'Core Node modules\' path')
+  .option('-l, --line <ln>', 'Target line')
+  .option('-c, --column <col>', 'Target column')
+  .parse(process.argv);
+
+if(!program.file || !program.node_modules || !program.core_modules ||
+   !program.line || !program.column) {
+  console.log(program.help());
+  process.exit(1);
+}
+
+findDefinition(
+  program.file,
+  program.line,
+  program.column,
+  program.node_modules,
+  program.core_modules,
+  function(err, def) {
+    if(err) {
+      console.error(err.message);
+      process.exit(1);
+    }
+
+    console.log(JSON.stringify({
+      path: def.path,
+      loc: def.loc,
+    }));
+  }
+);
