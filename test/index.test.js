@@ -15,6 +15,7 @@ describe('find-definition', function() {
   before(function() {
     this.testModuleFp = path.join(__dirname, 'test-module.js');
     this.nodeModulesFp = path.join(__dirname, '../node_modules');
+    this.codeModulesFp = path.join(__dirname, '../core');
 
     this.testModule = fs.readFileSync(this.testModuleFp);
     this.testAst = esprima.parse(this.testModule, { loc: true });
@@ -25,8 +26,9 @@ describe('find-definition', function() {
       it('returns the correct position for the definition', function(done) {
         var fp = this.testModuleFp;
         var nmfp = this.nodeModulesFp;
+        var cmfp = this.codeModulesFp;
 
-        findDefinition(fp, 6, 0, nmfp, function(err, result) {
+        findDefinition(fp, 6, 0, nmfp, cmfp, function(err, result) {
           result.loc.start.should.eql({
             line: 3,
             column: 0
@@ -42,18 +44,24 @@ describe('find-definition', function() {
     it('returns the AST for a given local module', function(done) {
       var _this = this;
 
-      findDefinition.getModuleAst(__dirname, (__dirname + '../core'), '../node_modules', './test-module', function(err, ast) {
-        should.not.exist(err);
-        should.exist(ast);
-        ast.should.have.properties(['type', 'body', 'loc', 'path']);
-        ast.path.should.equal(_this.testModuleFp);
-        done();
-      should.not.exist(err);
-      });
+      findDefinition.getModuleAst(
+        this.testModuleFp,
+        (__dirname + '../core'),
+        '../node_modules',
+        './test-module',
+        function(err, ast) {
+          should.not.exist(err);
+          should.exist(ast);
+          ast.should.have.properties(['type', 'body', 'loc', 'path']);
+          ast.path.should.equal(_this.testModuleFp);
+          done();
+          should.not.exist(err);
+        }
+      );
     });
   });
 
-  describe('.findDefinitionRecursive(ast, name, cb)', function() {
+  describe('.findDefinitionRecursive(fp, nodeModulesFp, coreModulesFp, ast, name, cb)', function() {
     function all(actions, cb) {
       cb = _.once(cb);
       var results = [];
@@ -100,7 +108,7 @@ describe('find-definition', function() {
       testArgs([
         {
           input: [
-            __dirname,
+            this.testModuleFp,
             '../node_modules',
             __dirname + '/../core',
             this.testAst,
@@ -112,7 +120,7 @@ describe('find-definition', function() {
         },
         {
           input: [
-            __dirname,
+            this.testModuleFp,
             '../node_modules',
             __dirname + '/../core',
             this.testAst,
@@ -154,7 +162,18 @@ describe('find-definition', function() {
       should.exist(node);
       node.type.should.equal('ExpressionStatement');
       node.expression.type.should.equal('CallExpression');
-      node.expression.callee.name.should.equal('doSomething');
+      findDefinition.getName(node).should.equal('doSomething');
+    });
+
+    it('finds the relevant part under coordinates', function() {
+      var testModule = fs.readFileSync(path.join(__dirname, 'test-module.js'))
+        .toString();
+      var ast = esprima.parse(testModule, { loc: true });
+
+      var node = findDefinition.findByLoc(ast, 31, 20);
+      should.exist(node);
+      node.type.should.equal('MemberExpression');
+      findDefinition.getName(node).should.equal('fs.readFile');
     });
   });
 
