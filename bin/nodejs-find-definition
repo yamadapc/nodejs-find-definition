@@ -7,8 +7,8 @@ program
   .option('-f, --file <path>', 'Input file to analyse')
   .option('-n, --node_modules <nmpath>', 'Node modules path')
   .option('-r, --core_modules <cmpath', 'Core Node modules\' path')
-  .option('-l, --line <ln>', 'Target line')
-  .option('-c, --column <col>', 'Target column')
+  .option('-l, --line <ln>', 'Target line', parseInt)
+  .option('-c, --column <col>', 'Target column', parseInt)
   .parse(process.argv);
 
 if(!program.file || !program.node_modules || !program.core_modules ||
