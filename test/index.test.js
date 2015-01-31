@@ -2,6 +2,7 @@
 var path = require('path');
 var fs = require('fs');
 var esprima = require('esprima');
+var _ = require('lodash');
 var should = require('should');
 var findDefinition = require('..');
 
@@ -53,19 +54,75 @@ describe('find-definition', function() {
   });
 
   describe('.findDefinitionRecursive(ast, name, cb)', function() {
-    it('recursivelly searches modules for the definition of a name', function(done) {
-      findDefinition.findDefinitionRecursive(
-        __dirname,
-        '../node_modules',
-        __dirname + '/../core',
-        this.testAst,
-        'fs.WriteStream',
-        function(err, def) {
-          if(err) return done(err);
-          def.loc.start.line.should.equal(1732);
-          done();
+    function all(actions, cb) {
+      cb = _.once(cb);
+      var results = [];
+      var nactions = actions.length;
+      var done = 0;
+
+      function iter(i, err, result) {
+        if(err) return cb(err);
+
+        results.push(result);
+        done++;
+
+        if(done >= nactions) {
+          cb(null, results);
         }
-      );
+      }
+
+      _.each(actions, function(action, i) {
+        action(_.partial(iter, i));
+      });
+    }
+
+    function testArgs(argss, cb) {
+      return all(_.map(argss, function(args) {
+        return function(cb) {
+          args.input.push(function(err, result) {
+            if(err) return cb(err);
+
+            try {
+              args.testResult(result);
+            } catch(err) {
+              return cb(err);
+            }
+
+            cb(null);
+          });
+
+          findDefinition.findDefinitionRecursive.apply(null, args.input);
+        };
+      }), cb);
+    }
+
+    it('recursivelly searches modules for the definition of a name', function(done) {
+      testArgs([
+        {
+          input: [
+            __dirname,
+            '../node_modules',
+            __dirname + '/../core',
+            this.testAst,
+            'fs.WriteStream',
+          ],
+          testResult: function(def) {
+            def.loc.start.line.should.equal(1732);
+          },
+        },
+        {
+          input: [
+            __dirname,
+            '../node_modules',
+            __dirname + '/../core',
+            this.testAst,
+            'fs.WriteStream.prototype',
+          ],
+          testResult: function(def) {
+            def.loc.start.line.should.equal(1732);
+          },
+        },
+      ], done);
     });
   });
 
@@ -76,6 +133,14 @@ describe('find-definition', function() {
       name.should.equal('fs');
       name = findDefinition.findModuleNameInAst(this.testAst, 'something');
       name.should.equal('./something/there');
+    });
+  });
+
+  describe('.assignmentExpressionToSplitName(assignment)', function() {
+    it('gets "path" to a property given an assignment expression', function() {
+      var node = esprima.parse('obj = { property: {} }; obj.property.here = "something";');
+      findDefinition.assignmentExpressionToSplitName(node.body[1].expression)
+        .should.eql(['obj', 'property', 'here']);
     });
   });
 
