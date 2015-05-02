@@ -25,7 +25,7 @@ findDefinition(
   program.core_modules,
   function(err, def) {
     if(err) {
-      console.error(err.message);
+      console.error(JSON.stringify({ "error": err.message }));
       process.exit(1);
     }
 
