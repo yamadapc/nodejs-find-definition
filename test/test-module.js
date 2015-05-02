@@ -28,7 +28,7 @@ var something = require('./something/there');
 
 
 
-var readFile = fs.readFile();
+var readFile = fs.readFile;
 
 var WSProt = fs.WriteStream.prototype;
 }
