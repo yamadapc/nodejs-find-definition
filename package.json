@@ -37,7 +37,7 @@
     "commander": "^2.6.0",
     "esprima": "^1.2.3",
     "estraverse": "^1.9.1",
-    "lodash": "^3.0.0",
+    "lodash": "^4.2.0",
     "resolve": "^1.1.0"
   },
   "config": {
