@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/yamadapc/nodejs-find-definition",
   "devDependencies": {
-    "blanket": "^1.2.1",
+    "blanket": "^1.2.2",
     "mocha": "^2.1.0",
     "mocha-spec-cov-alt": "^1.1.0",
     "should": "^8.2.1"
